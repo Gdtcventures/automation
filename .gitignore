@@ -3,5 +3,4 @@ package-lock.json
 *.log
 *.gz
 views
-test.json
 .env

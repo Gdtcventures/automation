@@ -7,18 +7,30 @@ module.exports = function(app, passport) {
         })
     });
 
-    app.get("/auth/facebook", passport.authenticate("facebook"));
+    app.get("/auth/facebook", passport.authenticate("facebook", { scope: ['public_profile'] }),(req, res) => {
+      console.log("Logging in via Facebook");
+    });
 
     app.get(
         "/auth/facebook/callback",
         passport.authenticate("facebook", { 
-          failureRedirect: "/",
-          scope : ['public_profile', 'email']
+          failureRedirect: "/"
         }),
         async function(req, res) {
-          const response = await bigcommerce.createCustomer(res.req.user._json);
-          const redirect_url = await bigcommerce.getLoginUrl(response.data[0].id)
-          res.redirect(redirect_url);
+          const token = await bigcommerce.getLoginUrl(req.user[0].id);
+          res.json({
+            user_id: req.user[0].id,
+            token
+          });
+          //res.redirect(redirect_url);
         }
       );
+
+      app.get('/login', (req, res) =>{
+        res.redirect('/auth/facebook');
+      });
+
+      app.get('/logout', (req, res) => {
+        req.session.destroy();
+      });
 }

@@ -1,4 +1,5 @@
-const FacebookStrategy = require("passport-facebook").Strategy
+const FacebookStrategy = require("passport-facebook").Strategy;
+const bigcommerce = require('../helpers/bigcommerce');
 const configAuth = require('./auth');
 
 module.exports = function(passport) { 
@@ -16,11 +17,13 @@ module.exports = function(passport) {
             clientID: process.env.fbclientID,
             clientSecret: process.env.fbclientSecret,
             callbackURL: process.env.fbcallbackURL,
-            profileFields: ['id', 'displayName', 'link', 'photos', 'email']
+            profileFields: ["id","first_name","last_name","email","picture"]
           },
-          function(accessToken, refreshToken, profile, cb) {
+          async function(accessToken, refreshToken, profile, cb) {
               profile.accessToken = accessToken;
-            return cb(null, profile)
+              const response = await bigcommerce.createCustomer(profile._json);
+              response.data.accessToken = accessToken;
+              return cb(null, response.data);
           }
         )
     );

@@ -11,8 +11,8 @@ exports.createCustomer = async function (customer) {
     }
     const data = [{ authentication: { force_password_reset: true },
         email: customer.email,
-        first_name: customer.name,
-        last_name: customer.name,
+        first_name: customer.first_name,
+        last_name: customer.last_name,
     }];
     const options = await formatOptions('POST','v3/customers',data);
     const createdCustomer = await axios(options);
@@ -29,8 +29,9 @@ exports.getLoginUrl = async function(customerId) {
         "store_hash": process.env.bgstoreHash,
         "customer_id": customerId,
     }
-    let token = jwt.sign(payload, process.env.bgclientSecret, {algorithm:'HS256'});
-    return `${process.env.bgstoreUrl}/login/token/${token}`;
+    const token = jwt.sign(payload, process.env.bgclientSecret, {algorithm:'HS256'});
+    return token;
+    //return `${process.env.bgstoreUrl}/login/token/${token}`;
 }
 
 exports.getCustomer = async function(email) {
