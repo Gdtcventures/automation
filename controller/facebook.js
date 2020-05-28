@@ -1,6 +1,10 @@
 const bigcommerce = require('../helpers/bigcommerce');
-module.exports = function(app, passport) { 
+const { redirectUrl } = require('../config/config');
+const Mixpanel = require('../helpers/mixpanel');
 
+
+module.exports = function(app, passport) { 
+    var path = null
     app.get("/", (req, res) => {
         res.render("layouts/home", {
           user: req.user,
@@ -17,16 +21,31 @@ module.exports = function(app, passport) {
           failureRedirect: "/"
         }),
         async function(req, res) {
+  
           const token = await bigcommerce.getLoginUrl(req.user[0].id);
-          res.json({
-            user_id: req.user[0].id,
-            token
-          });
-          //res.redirect(redirect_url);
+          let redirect_url = "";
+          if(path !== null){
+            if(path === redirectUrl.honebase.key){
+              const mixpanel_honebase = new Mixpanel('b1b1b1848942f5c6f96c7d3d1cb2222b',req.user[0].id);
+              mixpanel_honebase.trackFBSignUp(req.user[0].first_name, req.user[0].last_name);
+              redirect_url = `${redirectUrl.honebase.url}?id=${req.user[0].id}&token=${token}`;
+              res.redirect(redirect_url);
+            }else if(path === redirectUrl.fliphim.key){
+              const mixpanel_fliphim = new Mixpanel('00b86c660e4107fede78034cef9b1413', req.user[0].id);
+              mixpanel_fliphim.trackFBSignUp(req.user[0].first_name, req.user[0].last_name);
+              redirect_url = `${redirectUrl.fliphim.url}?id=${req.user[0].id}&token=${token}`;
+              res.redirect(redirect_url);
+            }else{
+              res.send('Invalid Request');
+            }
+          }else{
+            res.send('Invalid Request');
+          }
         }
       );
 
       app.get('/login', (req, res) =>{
+        path = req.query.serviceURL;
         res.redirect('/auth/facebook');
       });
 
