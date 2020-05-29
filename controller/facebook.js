@@ -11,7 +11,7 @@ module.exports = function(app, passport) {
         })
     });
 
-    app.get("/auth/facebook", passport.authenticate("facebook", { scope: ['public_profile'] }),(req, res) => {
+    app.get("/auth/facebook", passport.authenticate("facebook", { scope: ['public_profile', 'email'] }),(req, res) => {
       console.log("Logging in via Facebook");
     });
 
