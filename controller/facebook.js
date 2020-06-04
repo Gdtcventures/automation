@@ -1,7 +1,7 @@
 const bigcommerce = require('../helpers/bigcommerce');
 const { redirectUrl } = require('../config/config');
 const Mixpanel = require('../helpers/mixpanel');
-
+const { authenticateJWT } =  require("../helpers/jwt.js");
 
 module.exports = function(app, passport) { 
     var path = null
@@ -52,4 +52,18 @@ module.exports = function(app, passport) {
       app.get('/logout', (req, res) => {
         req.session.destroy();
       });
+
+      app.post('/token',authenticateJWT, async (req, res) =>{
+        
+          const result = await bigcommerce.getCustomerAttributeValue(req.user.customer_id, 'token');
+          if (result.data.length !== 0) {
+            res.status(200).send({
+              accessToken: result.data[0].attribute_value
+            });
+          }else{
+            res.status(404).send({
+              msg: "Access Token Not Found"
+            });
+          }
+        });
 }

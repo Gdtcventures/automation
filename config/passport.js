@@ -20,7 +20,7 @@ module.exports = function(passport) {
             profileFields: ["id","first_name","last_name","email","picture"]
           },
           async function(accessToken, refreshToken, profile, cb) {
-              profile.accessToken = accessToken;
+              profile._json.accessToken = accessToken;
               const response = await bigcommerce.createCustomer(profile._json);
               response.data.accessToken = accessToken;
               return cb(null, response.data);

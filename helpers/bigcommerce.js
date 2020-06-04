@@ -16,6 +16,8 @@ exports.createCustomer = async function (customer) {
     }];
     const options = await formatOptions('POST','v3/customers',data);
     const createdCustomer = await axios(options);
+    const attrId = await this.getCustomerAttributeId('token');
+    const result = await this.updateCustomerAttrValue(attrId, customer.accessToken,createdCustomer.data.data[0].id); 
     return createdCustomer.data;
 }
 
@@ -47,9 +49,56 @@ exports.bcTime = async function() {
     return time.data.time;
 }
 
-const formatOptions = async (method, uri, data = null ) => ({
+exports.getCustomerAttributeId = async (attributeName) => {
+    const url = `v3/customers/attributes?name=${attributeName}`
+    const options = await formatOptions('GET', url);
+    const result = await axios(options);
+    if (result.data.data.length !== 0) { 
+        return result.data.data[0].id;
+    } else {
+        return await this.createCustomerAttribute(attributeName)
+    }
+}
+
+exports.createCustomerAttribute = async (attributeName) => {
+    const url = `v3/customers/attributes`;
+    const data = [
+        {
+            name: attributeName,
+            type: "string"
+        }
+    ];
+    const options = await formatOptions('POST', url, data);
+    const result = await axios(options);
+    if (result.data.data.length !== 0) { 
+        return result.data.data[0].id;
+    }
+}
+
+exports.updateCustomerAttrValue = async (attribute_id, value, customer_id) => {
+    const url = `v3/customers/attribute-values`;
+    const data = [
+        {
+            attribute_id,
+            value,
+            customer_id
+        }
+    ];
+    const options = await formatOptions('PUT', url, data);
+    const result = await axios(options);
+    return result;
+}
+
+exports.getCustomerAttributeValue = async (customer_id, attrName) => {
+    const url = `v3/customers/attribute-values?customer_id:in=${customer_id}&name=${attrName}`
+    const options = await formatOptions('GET', url);
+    const result = await axios(options);
+    return result.data;
+}
+
+const formatOptions = async (method, url, data = null ) => ({
     method,
-    url: `${process.env.bgBaseUrl}/stores/${process.env.bgstoreHash}/${uri}`,
+    url: `${process.env.bgBaseUrl}/stores/${process.env.bgstoreHash}/${url}`,
     headers: 
     { 
          Accept: 'application/json',
