@@ -5,11 +5,13 @@ const passport = require("passport");
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 dotenv.config();
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./helpers/swagger.json');
 
 let app = express();
 app.use(cors());
 app.use(bodyParser.json());
-
+app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 require('./config/passport')(passport); 
 
 app.engine("handlebars", exphbs())
