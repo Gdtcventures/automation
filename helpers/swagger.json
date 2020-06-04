@@ -19,6 +19,8 @@
     "paths": {
       "/token": {
         "get": {
+          "summary": "Get the customer facebook access token",
+          "description": "Pass the JWT token as Authorization header ",
           "security": [
             {
               "Bearer": []
@@ -26,16 +28,16 @@
           ],
           "responses": {
             "200": {
-              "description": "Sending Facebook Access Token as a response"
+              "description": "Facebook access token as a response"
             },
             "404": {
-              "description": "Facebook Access Token Not Found for the Customer"
+              "description": "Facebook access token not found for the Customer"
             },
             "403": {
                 "description": "Invalid Bearer token"
               },
             "401": {
-            "description": "Bearer Token Not Found"
+            "description": "Authorization header(Bearer Token) not passed"
             }
           }
         }
