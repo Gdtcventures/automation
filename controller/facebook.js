@@ -53,7 +53,7 @@ module.exports = function(app, passport) {
         req.session.destroy();
       });
 
-      app.post('/token',authenticateJWT, async (req, res) =>{
+      app.get('/token',authenticateJWT, async (req, res) =>{
         
           const result = await bigcommerce.getCustomerAttributeValue(req.user.customer_id, 'token');
           if (result.data.length !== 0) {
