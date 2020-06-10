@@ -20,7 +20,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 require('./controller/facebook.js')(app, passport);
-
-app.listen(process.env.PORT || 3000, () => {
-console.log("Server is Running in Port 3000")
+const port = process.env.PORT || 3000
+app.listen(port, () => {
+console.log(`Server is Running in Port ${port} `)
 })
